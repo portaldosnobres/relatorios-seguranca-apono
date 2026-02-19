@@ -41,6 +41,7 @@ db.serialize(() => {
       data TEXT,
       equipe TEXT,
       lider TEXT,
+      veiculo TEXT,
       km_inicial TEXT,
       km_final TEXT,
       combustivel TEXT,
@@ -49,6 +50,9 @@ db.serialize(() => {
       ft TEXT
     )
   `);
+
+  // Garante que a coluna veiculo exista (caso banco já tenha sido criado antes)
+  db.run(`ALTER TABLE relatorios ADD COLUMN veiculo TEXT`, () => {});
 
   const usuarios = [
     ["flavio", "7182", "FLAVIO", "lider"],
@@ -98,6 +102,7 @@ app.post("/relatorio", (req, res) => {
     data,
     equipe,
     lider,
+    veiculo,
     km_inicial,
     km_final,
     combustivel,
@@ -108,9 +113,9 @@ app.post("/relatorio", (req, res) => {
 
   db.run(
     `INSERT INTO relatorios 
-    (data, equipe, lider, km_inicial, km_final, combustivel, ocorrencias, faltas, ft)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [data, equipe, lider, km_inicial, km_final, combustivel, ocorrencias, faltas, ft],
+    (data, equipe, lider, veiculo, km_inicial, km_final, combustivel, ocorrencias, faltas, ft)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [data, equipe, lider, veiculo, km_inicial, km_final, combustivel, ocorrencias, faltas, ft],
     function (err) {
 
       if (err) {
@@ -125,6 +130,7 @@ app.post("/relatorio", (req, res) => {
 Data: ${data}
 Equipe: ${equipe}
 Líder: ${lider}
+Veículo: ${veiculo}
 KM: ${km_inicial} - ${km_final}
 `
       });
@@ -134,6 +140,21 @@ KM: ${km_inicial} - ${km_final}
     }
   );
 
+});
+
+/* ================= ÚLTIMOS 4 RELATÓRIOS ================= */
+
+app.get('/ultimos-relatorios', (req, res) => {
+  db.all(`
+    SELECT * FROM relatorios
+    ORDER BY id DESC
+    LIMIT 4
+  `, [], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ erro: err.message });
+    }
+    res.json(rows);
+  });
 });
 
 /* ================= FILTRO RELATÓRIOS ================= */
@@ -204,8 +225,12 @@ app.get("/gerar-pdf", (req, res) => {
       doc.fontSize(12).text(`Data: ${r.data}`);
       doc.text(`Equipe: ${r.equipe}`);
       doc.text(`Líder: ${r.lider}`);
+      doc.text(`Veículo: ${r.veiculo}`);
       doc.text(`KM: ${r.km_inicial} - ${r.km_final}`);
       doc.text(`Combustível: ${r.combustivel}`);
+      doc.text(`Ocorrências: ${r.ocorrencias}`);
+      doc.text(`Faltas: ${r.faltas}`);
+      doc.text(`FT: ${r.ft}`);
       doc.moveDown();
 
     });
@@ -241,20 +266,6 @@ app.get("/admin", (req, res) => {
 /* ================= SERVIDOR ================= */
 
 const PORT = process.env.PORT || 3000;
-
-app.get('/ultimos-relatorios', (req, res) => {
-  db.all(`
-    SELECT * FROM relatorios
-    ORDER BY id DESC
-    LIMIT 4
-  `, [], (err, rows) => {
-    if (err) {
-      return res.status(500).json({ erro: err.message });
-    }
-    res.json(rows);
-  });
-});
-
 
 app.listen(PORT, () => {
   console.log("Servidor rodando na porta " + PORT);

@@ -1,260 +1,103 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <style>
-.combo {
-    width: 100%;
-    padding: 6px;
-}
-label {
-    font-weight: bold;
-    display: block;
-    margin-bottom: 4px;
-}
-</style>
-
-<meta charset="UTF-8">
-<title>Relatório Diário</title>
+  <title>Sistema de Relatórios</title>
 </head>
-
 <body>
 
-<div style="text-align:right; margin-bottom:10px;">
-    <button id="logoutBtn" style="padding:6px 12px;">Sair</button>
-</div>
-
-<h2>Relatório Diário</h2>
+<h2>Novo Relatório</h2>
 
 <form id="formRelatorio">
 
-Data:
-<input type="date" name="data" required>
-<br><br>
+  <label>Data:</label><br>
+  <input type="date" name="data" required><br><br>
 
-Equipe:
-<select name="equipe" required>
+  <label>Equipe:</label><br>
+  <select name="equipe" required>
     <option value="">Selecione</option>
-    <option value="EQUIPE A">EQUIPE A</option>
-    <option value="EQUIPE B">EQUIPE B</option>
-    <option value="EQUIPE C">EQUIPE C</option>
-    <option value="EQUIPE D">EQUIPE D</option>
-</select>
-<br><br>
+    <option value="A">A</option>
+    <option value="B">B</option>
+    <option value="C">C</option>
+    <option value="D">D</option>
+  </select><br><br>
 
-<hr>
-<h3 style="margin-top:20px;">ESCALA DO TURNO</h3>
+  <label>Líder:</label><br>
+  <input type="text" name="lider" required><br><br>
 
-<div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; max-width:600px;">
+  <label>Veículo Utilizado:</label><br>
+  <select name="veiculo" required>
+    <option value="">Selecione</option>
+    <option value="M001">M001</option>
+    <option value="M002">M002</option>
+    <option value="M003">M003</option>
+    <option value="M004">M004</option>
+    <option value="M005">M005</option>
+    <option value="M006">M006</option>
+    <option value="M007">M007</option>
+    <option value="M008">M008</option>
+    <option value="A001">A001</option>
+    <option value="A002">A002</option>
+  </select><br><br>
 
-<div>
-<label>RONDA 1</label>
-<select name="ronda1" class="combo"></select>
-</div>
+  <label>KM Inicial:</label><br>
+  <input type="number" name="km_inicial" required><br><br>
 
-<div>
-<label>RONDA 2</label>
-<select name="ronda2" class="combo"></select>
-</div>
+  <label>KM Final:</label><br>
+  <input type="number" name="km_final" required><br><br>
 
-<div>
-<label>BASE</label>
-<select name="base" class="combo"></select>
-</div>
+  <label>Combustível:</label><br>
+  <input type="text" name="combustivel"><br><br>
 
-<div>
-<label>APOIO 1</label>
-<select name="apoio1" class="combo"></select>
-</div>
+  <label>Ocorrências:</label><br>
+  <textarea name="ocorrencias"></textarea><br><br>
 
-<div>
-<label>APOIO 2</label>
-<select name="apoio2" class="combo"></select>
-</div>
+  <label>Faltas:</label><br>
+  <textarea name="faltas"></textarea><br><br>
 
-<div>
-<label>FÉRIAS</label>
-<select name="ferias" class="combo"></select>
-</div>
+  <label>FT:</label><br>
+  <textarea name="ft"></textarea><br><br>
 
-<div>
-<label>AFASTAMENTO</label>
-<select name="afastamento" class="combo"></select>
-</div>
-
-</div>
-
-<br>
-
-
-KM Inicial:
-<input type="text" name="km_inicial" required>
-<br><br>
-
-KM Final:
-<input type="text" name="km_final" required>
-<br><br>
-
-Ocorrências:<br>
-<textarea name="ocorrencias" rows="6" cols="60"></textarea>
-<br><br>
-
-Faltas:<br>
-<textarea name="faltas" rows="3" cols="60"></textarea>
-<br><br>
-
-FT:<br>
-<textarea name="ft" rows="3" cols="60"></textarea>
-<br><br>
-
-<button type="submit">Salvar</button>
+  <button type="submit">Salvar Relatório</button>
 
 </form>
 
-<script>
-
-document.addEventListener("DOMContentLoaded", function(){
-
-    const user = JSON.parse(localStorage.getItem("usuario"));
-
-    if(!user){
-        window.location.href = "/";
-        return;
-    }
-
-    // ===== LISTA DE MEMBROS =====
-    const membros = [
-        "Flavio", "Katia", "Fabio", "Camila", "Lucas",
-        "Wellington", "Vitório", "Guilherme", "Anizio",
-        "Keli", "Jeferson", "Denise", "Manasses",
-        "Leandro", "Carlos Eduardo", "Odair"
-    ];
-
-    document.querySelectorAll(".combo").forEach(select => {
-
-        const optionPadrao = document.createElement("option");
-        optionPadrao.value = "";
-        optionPadrao.textContent = "Selecione";
-        select.appendChild(optionPadrao);
-
-        membros.forEach(nome => {
-            const option = document.createElement("option");
-            option.value = nome;
-            option.textContent = nome;
-            select.appendChild(option);
-        });
-
-    });
-
-    // ===== BOTÃO SAIR =====
-    document.getElementById("logoutBtn").addEventListener("click", function(){
-        localStorage.removeItem("usuario");
-        window.location.href = "/";
-    });
-
-    // ===== ENVIO DO RELATÓRIO =====
-    document.getElementById("formRelatorio").addEventListener("submit", async function(e){
-
-        e.preventDefault();
-
-        const dados = Object.fromEntries(new FormData(this));
-
-        try{
-
-            const resposta = await fetch("/relatorio", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(dados)
-            });
-
-            if(resposta.ok){
-                alert("Relatório salvo!");
-                this.reset();
-            }else{
-                alert("Erro ao salvar");
-            }
-
-        }catch(err){
-            alert("Erro ao salvar");
-        }
-
-    });
-
-});
-
-
-document.addEventListener("DOMContentLoaded", function(){
-
-    const user = JSON.parse(localStorage.getItem("usuario"));
-
-    if(!user){
-        window.location.href = "/";
-        return;
-    }
-
-    document.getElementById("lider").value = user.nome;
-
-    // ===== LISTA DE MEMBROS =====
-    const membros = [
-        "Flavio", "Katia", "Fabio", "Camila", "Lucas",
-        "Wellington", "Vitório", "Guilherme", "Anizio",
-        "Keli", "Jeferson", "Denise", "Manasses",
-        "Leandro", "Carlos Eduardo", "Odair"
-    ];
-
-    document.querySelectorAll(".combo").forEach(select => {
-
-        const optionPadrao = document.createElement("option");
-        optionPadrao.value = "";
-        optionPadrao.textContent = "Selecione";
-        select.appendChild(optionPadrao);
-
-        membros.forEach(nome => {
-            const option = document.createElement("option");
-            option.value = nome;
-            option.textContent = nome;
-            select.appendChild(option);
-        });
-
-    });
-
-    // ===== BOTÃO SAIR =====
-    document.getElementById("logoutBtn").addEventListener("click", function(){
-        localStorage.removeItem("usuario");
-        window.location.href = "/";
-    });
-
-    // ===== ENVIO DO RELATÓRIO =====
-    document.getElementById("formRelatorio").addEventListener("submit", async function(e){
-
-        e.preventDefault();
-
-        const dados = Object.fromEntries(new FormData(this));
-
-        const resposta = await fetch("/relatorio", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(dados)
-        });
-
-        if(resposta.ok){
-            alert("Relatório salvo!");
-            this.reset();
-            document.getElementById("lider").value = user.nome;
-        }else{
-            alert("Erro ao salvar");
-        }
-
-    });
-
-});
-
-</script>
 <hr>
+
 <h3>Últimos 4 Relatórios</h3>
 <div id="ultimosRelatorios"></div>
 
 <script>
+
+/* ================= SALVAR RELATÓRIO ================= */
+
+document.getElementById("formRelatorio")
+  .addEventListener("submit", async function(e) {
+
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const dados = Object.fromEntries(formData.entries());
+
+    const res = await fetch("/relatorio", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dados)
+    });
+
+    if (res.ok) {
+      alert("Relatório salvo com sucesso!");
+      this.reset();
+      carregarUltimos();
+    } else {
+      alert("Erro ao salvar relatório.");
+    }
+
+});
+
+/* ================= CARREGAR ÚLTIMOS 4 ================= */
+
 async function carregarUltimos() {
+
   const res = await fetch("/ultimos-relatorios");
   const dados = await res.json();
 
@@ -272,15 +115,17 @@ async function carregarUltimos() {
         <strong>Data:</strong> ${r.data}<br>
         <strong>Equipe:</strong> ${r.equipe}<br>
         <strong>Líder:</strong> ${r.lider}<br>
+        <strong>Veículo:</strong> ${r.veiculo}<br>
         <strong>KM:</strong> ${r.km_inicial} - ${r.km_final}
       </div>
     `;
   });
+
 }
 
 carregarUltimos();
-</script>
 
+</script>
 
 </body>
 </html>
