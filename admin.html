@@ -121,8 +121,31 @@ function gerarPDF(){
     window.location.href = `/gerar-pdf?data=${data}&equipe=${equipe}`;
 
 }
+<h3>Últimos 4 Relatórios</h3>
+<div id="lista-relatorios"></div>
 
+<<script>
+fetch('/ultimos-relatorios')
+  .then(res => res.json())
+  .then(dados => {
+    const container = document.getElementById('lista-relatorios');
+    
+    if (dados.length === 0) {
+      container.innerHTML = "<p>Nenhum relatório recente.</p>";
+      return;
+    }
+
+    dados.forEach(rel => {
+      container.innerHTML += `
+        <div style="border:1px solid #ccc; padding:10px; margin:5px;">
+          <strong>Equipe:</strong> ${rel.equipe} <br>
+          <strong>Data:</strong> ${rel.data_envio}
+        </div>
+      `;
+    });
+  });
 </script>
+
 
 </body>
 </html>

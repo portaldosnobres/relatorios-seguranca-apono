@@ -282,3 +282,12 @@ app.get("/gerar-pdf-individual/:id", (req, res) => {
   });
 
 });
+app.get('/ultimos-relatorios', (req, res) => {
+  db.all(`
+    SELECT * FROM relatorios
+    ORDER BY id DESC
+    LIMIT 4
+  `, [], (err, rows) => {
+
+
+
