@@ -242,52 +242,21 @@ app.get("/admin", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log("Servidor rodando na porta " + PORT);
-});
-
-app.get("/gerar-pdf-individual/:id", (req, res) => {
-
-  const id = req.params.id;
-
-  const doc = new PDFDocument();
-
-  res.setHeader("Content-Type", "application/pdf");
-  res.setHeader("Content-Disposition", `attachment; filename=relatorio_${id}.pdf`);
-
-  doc.pipe(res);
-
-  db.get("SELECT * FROM relatorios WHERE id = ?", [id], (err, r) => {
-
-    if (err || !r) {
-      doc.text("Relatório não encontrado.");
-      doc.end();
-      return;
-    }
-
-    doc.fontSize(18).text("Relatório Individual", { align: "center" });
-    doc.moveDown();
-
-    doc.fontSize(12).text(`Data: ${r.data}`);
-    doc.text(`Equipe: ${r.equipe}`);
-    doc.text(`Líder: ${r.lider}`);
-    doc.text(`KM: ${r.km_inicial} - ${r.km_final}`);
-    doc.text(`Combustível: ${r.combustivel}`);
-    doc.text(`Ocorrências: ${r.ocorrencias}`);
-    doc.text(`Faltas: ${r.faltas}`);
-    doc.text(`FT: ${r.ft}`);
-
-    doc.end();
-
-  });
-
-});
 app.get('/ultimos-relatorios', (req, res) => {
   db.all(`
     SELECT * FROM relatorios
     ORDER BY id DESC
     LIMIT 4
   `, [], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ erro: err.message });
+    }
+    res.json(rows);
+  });
+});
 
+const PORT = process.env.PORT || 3000;
 
-
+app.listen(PORT, () => {
+  console.log("Servidor rodando na porta " + PORT);
+});
