@@ -249,6 +249,37 @@ document.addEventListener("DOMContentLoaded", function(){
 });
 
 </script>
+<hr>
+<h3>Últimos 4 Relatórios</h3>
+<div id="ultimosRelatorios"></div>
+
+<script>
+async function carregarUltimos() {
+  const res = await fetch("/ultimos-relatorios");
+  const dados = await res.json();
+
+  const div = document.getElementById("ultimosRelatorios");
+  div.innerHTML = "";
+
+  if (dados.length === 0) {
+    div.innerHTML = "<p>Nenhum relatório ainda.</p>";
+    return;
+  }
+
+  dados.forEach(r => {
+    div.innerHTML += `
+      <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+        <strong>Data:</strong> ${r.data}<br>
+        <strong>Equipe:</strong> ${r.equipe}<br>
+        <strong>Líder:</strong> ${r.lider}<br>
+        <strong>KM:</strong> ${r.km_inicial} - ${r.km_final}
+      </div>
+    `;
+  });
+}
+
+carregarUltimos();
+</script>
 
 
 </body>
