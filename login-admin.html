@@ -1,105 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Login Administrativo</title>
-
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background: #2c3e50;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-.card {
-    background: white;
-    padding: 40px;
-    border-radius: 10px;
-    width: 350px;
-    text-align: center;
-}
-
-h2 {
-    margin-bottom: 20px;
-}
-
-input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-}
-
-button {
-    width: 100%;
-    padding: 10px;
-    background: #c0392b;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #e74c3c;
-}
-</style>
-
+  <title>Login Admin</title>
 </head>
-
 <body>
 
-<div class="card">
+<h2>Login Administrativo</h2>
 
-<h2>Área Administrativa</h2>
-
-<form id="loginAdminForm">
-
-<label>Usuário</label>
-<input type="text" name="usuario" required>
-
-<label>Senha</label>
-<input type="password" name="senha" required>
-
-<button type="submit">Entrar</button>
-
-</form>
-
-</div>
+<input id="usuario" placeholder="Usuário">
+<input id="senha" type="password" placeholder="Senha">
+<button onclick="login()">Entrar</button>
 
 <script>
+function login() {
+  fetch("/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      usuario: usuario.value,
+      senha: senha.value
+    })
+  })
+  .then(res => res.json())
+  .then(user => {
 
-document.getElementById("loginAdminForm").addEventListener("submit", async function(e){
-
-    e.preventDefault();
-
-    const dados = Object.fromEntries(new FormData(this));
-
-    const resposta = await fetch("/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dados)
-    });
-
-    if(resposta.ok){
-
-        const user = await resposta.json();
-
-        if(user.tipo !== "admin"){
-            alert("Acesso permitido apenas para administradores.");
-            return;
-        }
-
-        localStorage.setItem("usuario", JSON.stringify(user));
-        window.location.href = "/admin";
-
-    }else{
-        alert("Login inválido");
+    if (user.tipo !== "admin") {
+      alert("Use o login de líder.");
+      return;
     }
 
-});
+    window.location.href = "/admin";
 
+  })
+  .catch(() => alert("Login inválido"));
+}
 </script>
 
 </body>

@@ -1,151 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Painel Administrativo</title>
-
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background: #f4f6f9;
-    padding: 40px;
-}
-
-.card {
-    background: white;
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    max-width: 600px;
-    margin-bottom: 20px;
-}
-
-button {
-    padding: 10px 15px;
-    background: #2c3e50;
-    color: white;
-    border: none;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-button:hover {
-    background: #34495e;
-}
-
-select, input {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-}
-</style>
-
+  <title>Painel Admin</title>
 </head>
-
 <body>
 
 <h2>Painel Administrativo</h2>
 
-<div class="card">
-
-<h3>Filtrar Relatórios</h3>
-
-<label>Data</label>
-<input type="date" id="filtroData">
-
-<label>Equipe</label>
-<select id="filtroEquipe">
-    <option value="">Todas</option>
-    <option value="EQUIPE A">EQUIPE A</option>
-    <option value="EQUIPE B">EQUIPE B</option>
-    <option value="EQUIPE C">EQUIPE C</option>
-    <option value="EQUIPE D">EQUIPE D</option>
-</select>
-
-<button onclick="buscarRelatorios()">Buscar</button>
-<button onclick="gerarPDF()">Gerar PDF</button>
-
-</div>
-
-<div id="resultado" class="card"></div>
+<h3>Últimos 4 Relatórios</h3>
+<div id="relatorios"></div>
 
 <script>
 
-document.addEventListener("DOMContentLoaded", function(){
-
-    const user = JSON.parse(localStorage.getItem("usuario"));
-
-    if(!user || user.tipo !== "admin"){
-        window.location.href = "/";
-        return;
-    }
-
-});
-
-async function buscarRelatorios(){
-
-    const data = document.getElementById("filtroData").value;
-    const equipe = document.getElementById("filtroEquipe").value;
-
-    const resposta = await fetch(`/ver-relatorios?data=${data}&equipe=${equipe}`);
-    const relatorios = await resposta.json();
-
-    let html = "<h3>Resultados:</h3>";
-
-    if(relatorios.length === 0){
-        html += "<p>Nenhum relatório encontrado.</p>";
-    }
-
-   relatorios.forEach(r => {
-    html += `
-        <div style="border-bottom:1px solid #ccc; padding:10px;">
-            <strong>${r.data}</strong> - ${r.equipe} - ${r.lider}
-            <br>
-            <button onclick="window.location.href='/gerar-pdf-individual/${r.id}'">
-                Gerar PDF
-            </button>
-        </div>
-    `;
-});
-
-
-    document.getElementById("resultado").innerHTML = html;
-
-}
-
-function gerarPDF(){
-
-    const data = document.getElementById("filtroData").value;
-    const equipe = document.getElementById("filtroEquipe").value;
-
-    window.location.href = `/gerar-pdf?data=${data}&equipe=${equipe}`;
-
-}
-<h3>Últimos 4 Relatórios</h3>
-<div id="lista-relatorios"></div>
-
-<<script>
-fetch('/ultimos-relatorios')
+fetch("/ultimos-relatorios")
   .then(res => res.json())
   .then(dados => {
-    const container = document.getElementById('lista-relatorios');
-    
-    if (dados.length === 0) {
-      container.innerHTML = "<p>Nenhum relatório recente.</p>";
-      return;
-    }
 
-    dados.forEach(rel => {
-      container.innerHTML += `
-        <div style="border:1px solid #ccc; padding:10px; margin:5px;">
-          <strong>Equipe:</strong> ${rel.equipe} <br>
-          <strong>Data:</strong> ${rel.data_envio}
-        </div>
+    const div = document.getElementById("relatorios");
+
+    dados.forEach(r => {
+      div.innerHTML += `
+        <hr>
+        <b>Data:</b> ${r.data}<br>
+        <b>Equipe:</b> ${r.equipe}<br>
+        <b>Líder:</b> ${r.lider}<br>
       `;
     });
-  });
-</script>
 
+  });
+
+</script>
 
 </body>
 </html>

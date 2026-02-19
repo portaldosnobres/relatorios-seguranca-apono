@@ -1,116 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Login</title>
-
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background: #f4f6f9;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-}
-
-.card {
-    background: white;
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    width: 350px;
-    text-align: center;
-}
-
-.logo {
-    width: 140px;
-    margin-bottom: 20px;
-}
-
-h2 {
-    margin-bottom: 20px;
-}
-
-input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-}
-
-button {
-    width: 100%;
-    padding: 10px;
-    background: #2c3e50;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #34495e;
-}
-</style>
-
+  <title>Login Líder</title>
 </head>
-
 <body>
 
-<div class="card">
+<h2>Login Líder</h2>
 
-<img src="/logo.jpg" class="logo">
-
-<h2>Portal de Relatórios</h2>
-
-<form id="loginForm">
-
-<label>Usuário</label>
-<input type="text" name="usuario" required>
-
-<label>Senha</label>
-<input type="password" name="senha" required>
-
-<button type="submit">Entrar</button>
-
-</form>
-
-</div>
+<input id="usuario" placeholder="Usuário">
+<input id="senha" type="password" placeholder="Senha">
+<button onclick="login()">Entrar</button>
 
 <script>
+function login() {
+  fetch("/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      usuario: usuario.value,
+      senha: senha.value
+    })
+  })
+  .then(res => res.json())
+  .then(user => {
 
-document.getElementById("loginForm").addEventListener("submit", async function(e){
-
-    e.preventDefault();
-
-    const dados = Object.fromEntries(new FormData(this));
-
-    const resposta = await fetch("/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dados)
-    });
-
-    if(resposta.ok){
-
-        const user = await resposta.json();
-
-        if(user.tipo !== "lider"){
-            alert("Use o login administrativo.");
-            return;
-        }
-
-        localStorage.setItem("usuario", JSON.stringify(user));
-        window.location.href = "/sistema";
-
-    }else{
-        alert("Login inválido");
+    if (user.tipo !== "lider") {
+      alert("Use o login administrativo.");
+      return;
     }
 
-});
+    window.location.href = "/sistema";
 
+  })
+  .catch(() => alert("Login inválido"));
+}
 </script>
-
 
 </body>
 </html>
