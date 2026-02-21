@@ -243,25 +243,7 @@ app.get("/gerar-pdf", (req, res) => {
 
 /* ================= PÁGINAS ================= */
 
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/login.html");
-});
-
-app.get("/login", (req, res) => {
-  res.sendFile(__dirname + "/login.html");
-});
-
-app.get("/login-admin", (req, res) => {
-  res.sendFile(__dirname + "/login-admin.html");
-});
-
-app.get("/sistema", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
-});
-
-app.get("/admin", (req, res) => {
-  res.sendFile(__dirname + "/admin.html");
-});
+app.use(express.static("public"));
 
 /* ================= SERVIDOR ================= */
 
